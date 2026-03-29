@@ -1,6 +1,18 @@
 import React from 'react';
 
-export default function Player({ video, isShort }) {
+export default function Player({ video, isShort, isNotFound }) {
+  if (isNotFound) {
+    return (
+      <div className="empty-state">
+        <div className="empty-state__icon">🔍</div>
+        <h2 className="empty-state__title">No videos found.</h2>
+        <p className="empty-state__subtitle">
+          We couldn't find any random videos matching those filters. Try changing the category, duration, or clearing your search query.
+        </p>
+      </div>
+    );
+  }
+
   if (!video) {
     return (
       <div className="empty-state">

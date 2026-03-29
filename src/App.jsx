@@ -27,8 +27,10 @@ export default function App() {
   const [contentType, setContentType] = useState('video'); // 'video' | 'shorts'
   const [duration, setDuration] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [query, setQuery] = useState('');
   const [currentVideo, setCurrentVideo] = useState(null);
   const [isCurrentShort, setIsCurrentShort] = useState(false);
+  const [isNotFound, setIsNotFound] = useState(false);
   const [error, setError] = useState(null);
   const [quota, setQuota] = useState({ used: 0, limit: 10000 });
 
@@ -68,6 +70,7 @@ export default function App() {
   // ── Build search params object for caching ──
   function getSearchParams() {
     return {
+      query: query.trim(),
       category: selectedCategory,
       region,
       duration: contentType === 'shorts' ? 'short' : duration,
@@ -79,6 +82,7 @@ export default function App() {
   const handleRandom = useCallback(async () => {
     setIsLoading(true);
     setError(null);
+    setIsNotFound(false);
 
     try {
       const params = getSearchParams();
@@ -92,20 +96,28 @@ export default function App() {
       }
 
       // 2. Search via API
-      const randomQ = RANDOM_QUERIES[Math.floor(Math.random() * RANDOM_QUERIES.length)];
-      const { data, quota: q } = await searchVideos({
+      // If user typed a query, use it exactly. Otherwise use a random query letter.
+      const searchQ = params.query 
+        ? params.query 
+        : RANDOM_QUERIES[Math.floor(Math.random() * RANDOM_QUERIES.length)];
+
+      const apiPayload = {
         category: params.category,
         region: params.region,
         duration: params.duration,
-        q: randomQ,
         maxResults: 50,
-      });
+      };
+      
+      // We only pass `q` if it's the random fallback OR if the user specified a query
+      if (searchQ) apiPayload.q = searchQ;
+
+      const { data, quota: q } = await searchVideos(apiPayload);
 
       if (q) setQuota(q);
 
       const items = data.items || [];
       if (items.length === 0) {
-        showError('No videos found. Try a different category or region.');
+        setIsNotFound(true);
         setIsLoading(false);
         return;
       }
@@ -122,7 +134,7 @@ export default function App() {
         });
 
         if (shorts.length === 0) {
-          showError('No shorts found. Try a different category.');
+          setIsNotFound(true);
           setIsLoading(false);
           return;
         }
@@ -170,7 +182,7 @@ export default function App() {
     } finally {
       setIsLoading(false);
     }
-  }, [region, selectedCategory, contentType, duration, addToHistory]);
+  }, [region, selectedCategory, contentType, duration, query, addToHistory]);
 
   // ── Select video (from cache or history) ──
   async function selectVideo(video, params) {
@@ -212,12 +224,14 @@ export default function App() {
             onContentTypeChange={setContentType}
             duration={duration}
             onDurationChange={setDuration}
+            query={query}
+            onQueryChange={setQuery}
             onRandom={handleRandom}
             isLoading={isLoading}
             categoriesLoading={categoriesLoading}
           />
 
-          <Player video={currentVideo} isShort={isCurrentShort} />
+          <Player video={currentVideo} isShort={isCurrentShort} isNotFound={isNotFound} />
         </main>
 
         <Sidebar

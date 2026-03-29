@@ -40,13 +40,35 @@ export default function Controls({
   onContentTypeChange,
   duration,
   onDurationChange,
+  query,
+  onQueryChange,
   onRandom,
   isLoading,
   categoriesLoading,
 }) {
   return (
     <div className="controls">
-      {/* Row 1: Region & Category */}
+      {/* Row 1: Search Query */}
+      <div className="controls__row" style={{ marginBottom: '-8px' }}>
+        <div className="controls__group">
+          <label className="controls__label" htmlFor="query-input">Search Query (Optional)</label>
+          <input
+            id="query-input"
+            type="text"
+            className="input"
+            placeholder="E.g., funny cats, lo-fi beats, unboxing..."
+            value={query}
+            onChange={(e) => onQueryChange(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && !isLoading) {
+                onRandom();
+              }
+            }}
+          />
+        </div>
+      </div>
+
+      {/* Row 2: Region & Category */}
       <div className="controls__row">
         <div className="controls__group">
           <label className="controls__label" htmlFor="region-select">Region</label>
