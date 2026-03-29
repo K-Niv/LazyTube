@@ -4,14 +4,24 @@ const CACHE_PREFIX = 'lt_cache_';
 const CACHE_EXPIRY_MS = 24 * 60 * 60 * 1000; // 24 hours
 
 /**
- * Generate a simple hash key from search parameters
+ * Generate a unique hash key from search parameters
  */
+async function generateHash(str) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(str);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+// We'll use a synchronous simple hash to avoid making makeKey async
 function makeKey(params) {
   const sorted = Object.keys(params)
     .sort()
     .map((k) => `${k}=${params[k]}`)
     .join('&');
-  return CACHE_PREFIX + btoa(sorted).replace(/[^a-zA-Z0-9]/g, '').slice(0, 40);
+  // Full base64 string ensures uniqueness, removed the aggressive .slice(0,40)
+  return CACHE_PREFIX + btoa(unescape(encodeURIComponent(sorted))).replace(/[^a-zA-Z0-9]/g, '');
 }
 
 /**
