@@ -1,0 +1,122 @@
+/* ══════════════════════════════════════════════
+   LazyTube — Design Tokens (CSS Custom Properties)
+   ══════════════════════════════════════════════ */
+
+:root {
+  /* ── Typography ── */
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --fs-xs: 0.7rem;
+  --fs-sm: 0.8rem;
+  --fs-base: 0.95rem;
+  --fs-md: 1.1rem;
+  --fs-lg: 1.4rem;
+  --fs-xl: 1.8rem;
+  --fs-2xl: 2.4rem;
+  --fw-regular: 400;
+  --fw-medium: 500;
+  --fw-semibold: 600;
+  --fw-bold: 700;
+  --fw-extrabold: 800;
+
+  /* ── Spacing ── */
+  --sp-1: 0.25rem;
+  --sp-2: 0.5rem;
+  --sp-3: 0.75rem;
+  --sp-4: 1rem;
+  --sp-5: 1.25rem;
+  --sp-6: 1.5rem;
+  --sp-8: 2rem;
+  --sp-10: 2.5rem;
+  --sp-12: 3rem;
+  --sp-16: 4rem;
+
+  /* ── Borders & Radii ── */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-full: 999px;
+
+  /* ── Transitions ── */
+  --transition-fast: 150ms ease;
+  --transition-base: 250ms ease;
+  --transition-slow: 400ms ease;
+
+  /* ── Sizes ── */
+  --sidebar-width: 320px;
+  --header-height: 64px;
+}
+
+/* ── Dark Theme (default) ── */
+[data-theme='dark'] {
+  --bg-primary: #0f0f14;
+  --bg-secondary: #16161e;
+  --bg-tertiary: #1e1e2a;
+  --bg-elevated: #252536;
+  --bg-glass: rgba(30, 30, 42, 0.75);
+  --bg-glass-hover: rgba(37, 37, 54, 0.85);
+
+  --text-primary: #f0f0f5;
+  --text-secondary: #a0a0b8;
+  --text-tertiary: #6b6b82;
+  --text-inverse: #0f0f14;
+
+  --accent: #8b5cf6;
+  --accent-hover: #a78bfa;
+  --accent-subtle: rgba(139, 92, 246, 0.15);
+  --accent-glow: rgba(139, 92, 246, 0.35);
+
+  --border: rgba(255, 255, 255, 0.06);
+  --border-hover: rgba(255, 255, 255, 0.12);
+  --border-accent: rgba(139, 92, 246, 0.3);
+
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
+  --shadow-glow: 0 0 24px rgba(139, 92, 246, 0.2);
+
+  --success: #34d399;
+  --warning: #fbbf24;
+  --error: #f87171;
+  --info: #60a5fa;
+
+  --scrollbar-track: #16161e;
+  --scrollbar-thumb: #2a2a3c;
+}
+
+/* ── Light Theme ── */
+[data-theme='light'] {
+  --bg-primary: #f8f9fc;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #f0f1f5;
+  --bg-elevated: #ffffff;
+  --bg-glass: rgba(255, 255, 255, 0.8);
+  --bg-glass-hover: rgba(255, 255, 255, 0.92);
+
+  --text-primary: #1a1a2e;
+  --text-secondary: #64648a;
+  --text-tertiary: #9999b3;
+  --text-inverse: #ffffff;
+
+  --accent: #7c3aed;
+  --accent-hover: #6d28d9;
+  --accent-subtle: rgba(124, 58, 237, 0.08);
+  --accent-glow: rgba(124, 58, 237, 0.2);
+
+  --border: rgba(0, 0, 0, 0.08);
+  --border-hover: rgba(0, 0, 0, 0.14);
+  --border-accent: rgba(124, 58, 237, 0.25);
+
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.12);
+  --shadow-glow: 0 0 24px rgba(124, 58, 237, 0.12);
+
+  --success: #10b981;
+  --warning: #f59e0b;
+  --error: #ef4444;
+  --info: #3b82f6;
+
+  --scrollbar-track: #f0f1f5;
+  --scrollbar-thumb: #d0d0de;
+}
