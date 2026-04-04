@@ -15,7 +15,8 @@
     "express": "^5.2.1",
     "framer-motion": "^12.38.0",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "react-youtube": "^10.1.0"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.4.1",

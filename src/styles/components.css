@@ -321,6 +321,43 @@
   margin-top: var(--sp-1);
 }
 
+/* ── Player Auto-Roll Overlay ── */
+.player__autoroll-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(8px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-4);
+  z-index: 10;
+}
+
+.player__autoroll-circle {
+  width: 80px;
+  height: 80px;
+  background: var(--accent);
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 40px rgba(99, 102, 241, 0.4);
+}
+
+.player__autoroll-number {
+  font-size: 2.5rem;
+  font-weight: var(--fw-extrabold);
+  color: white;
+}
+
+.player__autoroll-text {
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+  color: var(--text-secondary);
+}
+
 /* ── Empty State ── */
 .empty-state {
   display: flex;
@@ -506,8 +543,436 @@
 }
 
 /* ── Divider ── */
-.controls__divider {
-  display: none;
+/* ── Auto-Roll Toggle (Header) ── */
+.autoroll-toggle {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.autoroll-toggle__btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 10px;
+  border-radius: var(--radius-full);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  color: var(--text-secondary);
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.autoroll-toggle__btn:hover {
+  border-color: var(--border-hover);
+  color: var(--text-primary);
+}
+
+.autoroll-toggle__btn--active {
+  background: var(--accent-subtle);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.autoroll-toggle__text {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.autoroll-toggle__select {
+  appearance: none;
+  padding: 4px 8px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  color: var(--text-primary);
+  font-size: var(--fs-xs);
+  font-family: var(--font-family);
+  cursor: pointer;
+}
+
+/* ── Auto-Roll Countdown Bar ── */
+.autoroll-bar {
+  width: 100%;
+  max-width: 720px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.autoroll-bar__track {
+  width: 100%;
+  height: 3px;
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.autoroll-bar__fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--accent-warm));
+  border-radius: var(--radius-full);
+  transition: width 1s linear;
+}
+
+.autoroll-bar__label {
+  font-size: 0.65rem;
+  color: var(--text-tertiary);
+  font-weight: var(--fw-medium);
+  letter-spacing: 0.3px;
+}
+
+/* ── Presets ── */
+.presets {
+  width: 100%;
+  max-width: 720px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.presets__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.presets__label {
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+
+.presets__controls {
+  display: flex;
+  gap: var(--sp-1);
+}
+
+.presets__arrow {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  border-radius: var(--radius-sm);
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  font-size: var(--fs-xs);
+  font-weight: bold;
+}
+
+.presets__arrow:hover {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  border-color: var(--border-hover);
+}
+
+.presets__list-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.presets__list {
+  display: flex;
+  gap: var(--sp-2);
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  scrollbar-width: none; /* Firefox */
+  padding-bottom: 4px;
+}
+
+.presets__list::-webkit-scrollbar {
+  display: none; /* Chrome/Safari */
+}
+
+.presets__empty-text {
+  font-size: var(--fs-sm);
+  color: var(--text-tertiary);
+  display: flex;
+  align-items: center;
+  padding: 0 var(--sp-2);
+}
+
+.presets__pill-wrapper {
+  position: relative;
+  display: inline-flex;
+  border-radius: var(--radius-full);
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  transition: all var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.presets__pill-wrapper:hover {
+  border-color: var(--border-hover);
+  background: var(--bg-elevated);
+}
+
+.presets__pill-wrapper--active {
+  border-color: var(--accent);
+  background: var(--accent-subtle);
+}
+
+.presets__pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.presets__pill:hover {
+  color: var(--text-primary);
+}
+
+.presets__pill--add {
+  border: 1px dashed var(--border-hover);
+  background: transparent;
+  color: var(--text-secondary);
+  border-radius: var(--radius-full);
+  margin-right: var(--sp-2);
+}
+
+.presets__pill--add:hover {
+  border-style: solid;
+  color: var(--text-primary);
+}
+
+.presets__pill--active {
+  color: var(--accent);
+}
+
+.presets__pill-delete {
+  background: transparent;
+  border: none;
+  color: var(--text-tertiary);
+  font-size: 10px;
+  padding: 0 10px 0 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0 var(--radius-full) var(--radius-full) 0;
+}
+
+.presets__pill-delete:hover {
+  color: var(--error);
+}
+
+.presets__emoji {
+  font-size: var(--fs-sm);
+}
+
+/* ── Preset Modal ── */
+.preset-modal__body {
+  padding: var(--sp-4) var(--sp-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+
+.preset-modal__section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.preset-modal__label {
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.preset-modal__emojis {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  gap: 6px;
+  background: var(--bg-tertiary);
+  padding: var(--sp-2);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+}
+
+.preset-modal__emoji-btn {
+  background: transparent;
+  border: none;
+  font-size: 1.2rem;
+  padding: 4px;
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition: transform var(--transition-fast), background var(--transition-fast);
+}
+
+.preset-modal__emoji-btn:hover {
+  background: var(--bg-secondary);
+  transform: scale(1.1);
+}
+
+.preset-modal__emoji-btn--active {
+  background: rgba(255,255,255,0.1);
+  box-shadow: 0 0 0 2px var(--accent);
+}
+
+.preset-modal__summary {
+  font-size: var(--fs-xs);
+  color: var(--text-tertiary);
+  background: var(--bg-tertiary);
+  padding: var(--sp-3);
+  border-radius: var(--radius-md);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.preset-modal__summary-label {
+  font-weight: var(--fw-semibold);
+}
+
+.preset-modal__save-btn {
+  margin-top: var(--sp-2);
+  padding: 10px;
+  font-size: var(--fs-sm);
+}
+
+.presets__emoji {
+  font-size: var(--fs-sm);
+}
+
+/* ── Shortcuts Button ── */
+.shortcuts-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-full);
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-bold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.shortcuts-btn:hover {
+  border-color: var(--border-hover);
+  color: var(--text-primary);
+}
+
+/* ── Shortcuts Modal ── */
+.shortcuts-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.shortcuts-modal {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 0;
+  width: 380px;
+  max-width: 90vw;
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+}
+
+.shortcuts-modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--sp-4) var(--sp-5);
+  border-bottom: 1px solid var(--border);
+}
+
+.shortcuts-modal__title {
+  font-size: var(--fs-base);
+  font-weight: var(--fw-bold);
+  color: var(--text-primary);
+}
+
+.shortcuts-modal__close {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-tertiary);
+  font-size: var(--fs-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.shortcuts-modal__close:hover {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.shortcuts-modal__list {
+  padding: var(--sp-3) var(--sp-5);
+}
+
+.shortcuts-modal__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--sp-3) 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.shortcuts-modal__item:last-child {
+  border-bottom: none;
+}
+
+.shortcuts-modal__keys {
+  display: flex;
+  gap: 6px;
+}
+
+.shortcuts-modal__kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 26px;
+  padding: 0 8px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-family);
+  font-size: 0.7rem;
+  font-weight: var(--fw-semibold);
+  color: var(--text-primary);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+.shortcuts-modal__action {
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
 }
 
 /* ── Responsive ── */
@@ -531,4 +996,17 @@
     padding: var(--sp-3) var(--sp-6);
     font-size: var(--fs-base);
   }
+
+  .presets__list {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .presets__list::-webkit-scrollbar { display: none; }
+
+  .autoroll-toggle__text {
+    display: none;
+  }
 }
+

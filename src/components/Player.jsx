@@ -1,7 +1,10 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import YouTube from 'react-youtube';
 
-export default function Player({ video, isShort, isNotFound }) {
+export default function Player({ video, isShort, isNotFound, onEnd, showAutoRollCountdown, autoRollCountdownValue }) {
+  const playerRef = useRef(null);
+
   if (isNotFound) {
     return (
       <motion.div
@@ -49,7 +52,16 @@ export default function Player({ video, isShort, isNotFound }) {
   }
 
   const videoId = video.videoId || video.id?.videoId;
-  const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`;
+
+  const opts = {
+    height: '100%',
+    width: '100%',
+    playerVars: {
+      autoplay: 1,
+      rel: 0,
+      modestbranding: 1
+    },
+  };
 
   return (
     <AnimatePresence mode="wait">
@@ -62,14 +74,40 @@ export default function Player({ video, isShort, isNotFound }) {
         transition={{ duration: 0.35, ease: 'easeOut' }}
       >
         <div className={`player__wrapper ${isShort ? 'player__wrapper--shorts' : 'player__wrapper--video'}`}>
-          <iframe
+          <YouTube
+            videoId={videoId}
+            opts={opts}
             className="player__iframe"
-            src={embedUrl}
-            title={video.title || 'YouTube Video'}
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen
+            onEnd={onEnd}
+            onReady={(e) => { playerRef.current = e.target; }}
           />
+
+          {/* Auto-Roll Countdown Overlay */}
+          <AnimatePresence>
+            {showAutoRollCountdown && (
+              <motion.div
+                className="player__autoroll-overlay"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <motion.div 
+                  className="player__autoroll-circle"
+                  key={autoRollCountdownValue}
+                  initial={{ scale: 1.5, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  exit={{ scale: 0.5, opacity: 0 }}
+                  transition={{ duration: 0.5 }}
+                >
+                  <span className="player__autoroll-number">{autoRollCountdownValue}</span>
+                </motion.div>
+                <div className="player__autoroll-text">Playing next video in {autoRollCountdownValue}...</div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
+        
         {video.title && (
           <motion.div
             className="player__info"
