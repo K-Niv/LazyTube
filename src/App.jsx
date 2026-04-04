@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import Header from './components/Header';
 import Controls from './components/Controls';
 import Player from './components/Player';
 import Sidebar from './components/Sidebar';
 import { useTheme } from './hooks/useTheme';
 import { useHistory } from './hooks/useHistory';
-import { fetchCategories, searchVideos, getVideoDetails, fetchQuota, parseDuration } from './services/api';
+import { fetchCategories, searchVideos, getVideoDetails, parseDuration } from './services/api';
 import { getCachedResults, setCachedResults, markVideoUsed, getUnusedVideo } from './services/cache';
 
 // Random single-char / short queries to add variety to search results
@@ -24,7 +25,7 @@ export default function App() {
   const [categories, setCategories] = useState([]);
   const [categoriesLoading, setCategoriesLoading] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('');
-  const [contentType, setContentType] = useState('video'); // 'video' | 'shorts'
+  const [contentType, setContentType] = useState('video');
   const [duration, setDuration] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [query, setQuery] = useState('');
@@ -32,7 +33,6 @@ export default function App() {
   const [isCurrentShort, setIsCurrentShort] = useState(false);
   const [isNotFound, setIsNotFound] = useState(false);
   const [error, setError] = useState(null);
-  const [quota, setQuota] = useState({ used: 0, limit: 10000 });
 
   // ── Fetch categories when region changes ──
   useEffect(() => {
@@ -40,11 +40,10 @@ export default function App() {
     async function load() {
       setCategoriesLoading(true);
       try {
-        const { data, quota: q } = await fetchCategories(region);
+        const data = await fetchCategories(region);
         if (!cancelled) {
           setCategories(data);
           setSelectedCategory('');
-          if (q) setQuota(q);
         }
       } catch (err) {
         if (!cancelled) showError(err.message);
@@ -55,11 +54,6 @@ export default function App() {
     load();
     return () => { cancelled = true; };
   }, [region]);
-
-  // ── Fetch quota on mount ──
-  useEffect(() => {
-    fetchQuota().then(setQuota).catch(() => {});
-  }, []);
 
   // ── Error handling ──
   function showError(msg) {
@@ -96,9 +90,8 @@ export default function App() {
       }
 
       // 2. Search via API
-      // If user typed a query, use it exactly. Otherwise use a random query letter.
-      const searchQ = params.query 
-        ? params.query 
+      const searchQ = params.query
+        ? params.query
         : RANDOM_QUERIES[Math.floor(Math.random() * RANDOM_QUERIES.length)];
 
       const apiPayload = {
@@ -107,13 +100,10 @@ export default function App() {
         duration: params.duration,
         maxResults: 50,
       };
-      
-      // We only pass `q` if it's the random fallback OR if the user specified a query
+
       if (searchQ) apiPayload.q = searchQ;
 
-      const { data, quota: q } = await searchVideos(apiPayload);
-
-      if (q) setQuota(q);
+      const data = await searchVideos(apiPayload);
 
       const items = data.items || [];
       if (items.length === 0) {
@@ -125,8 +115,7 @@ export default function App() {
       // 3. For shorts: filter by actual duration ≤ 60s
       if (contentType === 'shorts') {
         const ids = items.map((i) => i.id.videoId).filter(Boolean);
-        const { data: detailsData, quota: q2 } = await getVideoDetails(ids);
-        if (q2) setQuota(q2);
+        const detailsData = await getVideoDetails(ids);
 
         const shorts = (detailsData.items || []).filter((v) => {
           const dur = parseDuration(v.contentDetails.duration);
@@ -139,7 +128,6 @@ export default function App() {
           return;
         }
 
-        // Merge snippet info from search results with details
         const searchMap = new Map(items.map((i) => [i.id.videoId, i]));
         const enrichedShorts = shorts.map((s) => {
           const search = searchMap.get(s.id);
@@ -159,7 +147,6 @@ export default function App() {
         setIsCurrentShort(true);
         addToHistory(picked);
       } else {
-        // Regular videos
         const enriched = items
           .filter((i) => i.id?.videoId)
           .map((i) => ({
@@ -204,16 +191,18 @@ export default function App() {
   function handleHistorySelect(item) {
     setCurrentVideo(item);
     setIsCurrentShort(item.isShort || false);
-    // Re-add to top of history
     addToHistory(item);
   }
 
   return (
     <div className="app">
-      <Header theme={theme} onToggleTheme={toggleTheme} quota={quota} />
+      <Header theme={theme} onToggleTheme={toggleTheme} />
 
       <div className="app__body">
         <main className="app__main">
+          {/* Player ABOVE controls */}
+          <Player video={currentVideo} isShort={isCurrentShort} isNotFound={isNotFound} />
+
           <Controls
             region={region}
             onRegionChange={setRegion}
@@ -230,8 +219,6 @@ export default function App() {
             isLoading={isLoading}
             categoriesLoading={categoriesLoading}
           />
-
-          <Player video={currentVideo} isShort={isCurrentShort} isNotFound={isNotFound} />
         </main>
 
         <Sidebar
@@ -241,7 +228,19 @@ export default function App() {
         />
       </div>
 
-      {error && <div className="error-toast">{error}</div>}
+      <AnimatePresence>
+        {error && (
+          <motion.div
+            className="error-toast"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            transition={{ duration: 0.3 }}
+          >
+            {error}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion } from 'framer-motion';
 
 const REGIONS = [
   { code: 'US', name: 'United States' },
@@ -30,6 +31,16 @@ const DURATIONS = [
   { value: 'long', label: 'Long (> 20 min)' },
 ];
 
+const row = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.06 } },
+};
+
+const item = {
+  hidden: { opacity: 0, y: 10 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.3, ease: 'easeOut' } },
+};
+
 export default function Controls({
   region,
   onRegionChange,
@@ -47,9 +58,14 @@ export default function Controls({
   categoriesLoading,
 }) {
   return (
-    <div className="controls">
-      {/* Row 1: Search Query */}
-      <div className="controls__row" style={{ marginBottom: '-8px' }}>
+    <motion.div
+      className="controls"
+      variants={row}
+      initial="hidden"
+      animate="visible"
+    >
+      {/* Search Query */}
+      <motion.div className="controls__row" variants={item}>
         <div className="controls__group">
           <label className="controls__label" htmlFor="query-input">Search Query (Optional)</label>
           <input
@@ -60,16 +76,14 @@ export default function Controls({
             value={query}
             onChange={(e) => onQueryChange(e.target.value)}
             onKeyDown={(e) => {
-              if (e.key === 'Enter' && !isLoading) {
-                onRandom();
-              }
+              if (e.key === 'Enter' && !isLoading) onRandom();
             }}
           />
         </div>
-      </div>
+      </motion.div>
 
-      {/* Row 2: Region & Category */}
-      <div className="controls__row">
+      {/* Region & Category */}
+      <motion.div className="controls__row" variants={item}>
         <div className="controls__group">
           <label className="controls__label" htmlFor="region-select">Region</label>
           <select
@@ -105,10 +119,10 @@ export default function Controls({
             ))}
           </select>
         </div>
-      </div>
+      </motion.div>
 
-      {/* Row 2: Content Type & Duration */}
-      <div className="controls__row">
+      {/* Content Type & Duration */}
+      <motion.div className="controls__row" variants={item}>
         <div className="controls__group">
           <label className="controls__label">Content Type</label>
           <div className="toggle-pill">
@@ -144,17 +158,21 @@ export default function Controls({
             </select>
           </div>
         )}
-      </div>
+      </motion.div>
 
       {/* Random Button */}
-      <button
-        className={`random-btn ${isLoading ? 'random-btn--loading' : ''}`}
-        onClick={onRandom}
-        disabled={isLoading}
-      >
-        <span className="random-btn__icon">{isLoading ? '⏳' : '🎲'}</span>
-        {isLoading ? 'Finding a video...' : 'Roll the Dice!'}
-      </button>
-    </div>
+      <motion.div variants={item}>
+        <motion.button
+          className={`random-btn ${isLoading ? 'random-btn--loading' : ''}`}
+          onClick={onRandom}
+          disabled={isLoading}
+          whileTap={{ scale: 0.97 }}
+          whileHover={{ scale: 1.01 }}
+        >
+          <span className="random-btn__icon">{isLoading ? '⏳' : '🎲'}</span>
+          {isLoading ? 'Finding a video...' : 'Roll the Dice!'}
+        </motion.button>
+      </motion.div>
+    </motion.div>
   );
 }

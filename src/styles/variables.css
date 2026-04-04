@@ -1,5 +1,5 @@
 /* ══════════════════════════════════════════════
-   LazyTube — Design Tokens (CSS Custom Properties)
+   LazyTube — Design Tokens
    ══════════════════════════════════════════════ */
 
 :root {
@@ -49,74 +49,84 @@
 
 /* ── Dark Theme (default) ── */
 [data-theme='dark'] {
-  --bg-primary: #0f0f14;
-  --bg-secondary: #16161e;
-  --bg-tertiary: #1e1e2a;
-  --bg-elevated: #252536;
-  --bg-glass: rgba(30, 30, 42, 0.75);
-  --bg-glass-hover: rgba(37, 37, 54, 0.85);
+  --bg-primary: #09090b;
+  --bg-secondary: #111113;
+  --bg-tertiary: #1a1a1f;
+  --bg-elevated: #222228;
+  --bg-glass: rgba(17, 17, 19, 0.8);
+  --bg-glass-hover: rgba(26, 26, 31, 0.9);
 
-  --text-primary: #f0f0f5;
-  --text-secondary: #a0a0b8;
-  --text-tertiary: #6b6b82;
-  --text-inverse: #0f0f14;
+  --text-primary: #fafafa;
+  --text-secondary: #a1a1aa;
+  --text-tertiary: #63636e;
+  --text-inverse: #09090b;
 
-  --accent: #8b5cf6;
-  --accent-hover: #a78bfa;
-  --accent-subtle: rgba(139, 92, 246, 0.15);
-  --accent-glow: rgba(139, 92, 246, 0.35);
+  --accent: #3b82f6;
+  --accent-hover: #60a5fa;
+  --accent-subtle: rgba(59, 130, 246, 0.12);
+  --accent-glow: rgba(59, 130, 246, 0.25);
+
+  --accent-warm: #f97316;
+  --accent-warm-hover: #fb923c;
+  --accent-warm-glow: rgba(249, 115, 22, 0.3);
 
   --border: rgba(255, 255, 255, 0.06);
   --border-hover: rgba(255, 255, 255, 0.12);
-  --border-accent: rgba(139, 92, 246, 0.3);
+  --border-accent: rgba(59, 130, 246, 0.3);
 
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
-  --shadow-glow: 0 0 24px rgba(139, 92, 246, 0.2);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 8px 28px rgba(0, 0, 0, 0.6);
+  --shadow-glow: 0 0 20px rgba(59, 130, 246, 0.15);
+  --shadow-warm-glow: 0 0 24px rgba(249, 115, 22, 0.2);
 
-  --success: #34d399;
-  --warning: #fbbf24;
-  --error: #f87171;
-  --info: #60a5fa;
+  --success: #22c55e;
+  --warning: #eab308;
+  --error: #ef4444;
+  --info: #3b82f6;
 
-  --scrollbar-track: #16161e;
-  --scrollbar-thumb: #2a2a3c;
+  --scrollbar-track: #111113;
+  --scrollbar-thumb: #27272a;
 }
 
 /* ── Light Theme ── */
 [data-theme='light'] {
-  --bg-primary: #f8f9fc;
+  --bg-primary: #fafafa;
   --bg-secondary: #ffffff;
-  --bg-tertiary: #f0f1f5;
+  --bg-tertiary: #f4f4f5;
   --bg-elevated: #ffffff;
-  --bg-glass: rgba(255, 255, 255, 0.8);
-  --bg-glass-hover: rgba(255, 255, 255, 0.92);
+  --bg-glass: rgba(255, 255, 255, 0.85);
+  --bg-glass-hover: rgba(255, 255, 255, 0.95);
 
-  --text-primary: #1a1a2e;
-  --text-secondary: #64648a;
-  --text-tertiary: #9999b3;
+  --text-primary: #18181b;
+  --text-secondary: #52525b;
+  --text-tertiary: #a1a1aa;
   --text-inverse: #ffffff;
 
-  --accent: #7c3aed;
-  --accent-hover: #6d28d9;
-  --accent-subtle: rgba(124, 58, 237, 0.08);
-  --accent-glow: rgba(124, 58, 237, 0.2);
+  --accent: #2563eb;
+  --accent-hover: #1d4ed8;
+  --accent-subtle: rgba(37, 99, 235, 0.08);
+  --accent-glow: rgba(37, 99, 235, 0.15);
 
-  --border: rgba(0, 0, 0, 0.08);
-  --border-hover: rgba(0, 0, 0, 0.14);
-  --border-accent: rgba(124, 58, 237, 0.25);
+  --accent-warm: #ea580c;
+  --accent-warm-hover: #c2410c;
+  --accent-warm-glow: rgba(234, 88, 12, 0.15);
 
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
-  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
-  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.12);
-  --shadow-glow: 0 0 24px rgba(124, 58, 237, 0.12);
+  --border: rgba(0, 0, 0, 0.06);
+  --border-hover: rgba(0, 0, 0, 0.12);
+  --border-accent: rgba(37, 99, 235, 0.2);
 
-  --success: #10b981;
-  --warning: #f59e0b;
-  --error: #ef4444;
-  --info: #3b82f6;
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 8px 28px rgba(0, 0, 0, 0.1);
+  --shadow-glow: 0 0 20px rgba(37, 99, 235, 0.1);
+  --shadow-warm-glow: 0 0 24px rgba(234, 88, 12, 0.1);
 
-  --scrollbar-track: #f0f1f5;
-  --scrollbar-thumb: #d0d0de;
+  --success: #16a34a;
+  --warning: #ca8a04;
+  --error: #dc2626;
+  --info: #2563eb;
+
+  --scrollbar-track: #f4f4f5;
+  --scrollbar-thumb: #d4d4d8;
 }

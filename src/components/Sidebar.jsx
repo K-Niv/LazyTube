@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 function timeAgo(timestamp) {
   const diff = Date.now() - timestamp;
@@ -37,30 +38,37 @@ export default function Sidebar({ history, onSelect, onClear }) {
             </p>
           </div>
         ) : (
-          history.map((item, index) => (
-            <div
-              key={`${item.videoId}-${index}`}
-              className="history-item"
-              onClick={() => onSelect(item)}
-              role="button"
-              tabIndex={0}
-              onKeyDown={(e) => e.key === 'Enter' && onSelect(item)}
-            >
-              <img
-                className={`history-item__thumb ${item.isShort ? 'history-item__thumb--shorts' : ''}`}
-                src={item.thumbnail}
-                alt=""
-                loading="lazy"
-              />
-              <div className="history-item__info">
-                <span className="history-item__title">{item.title}</span>
-                <span className="history-item__time">
-                  {item.isShort && '⚡ Short · '}
-                  {timeAgo(item.watchedAt)}
-                </span>
-              </div>
-            </div>
-          ))
+          <AnimatePresence>
+            {history.map((item, index) => (
+              <motion.div
+                key={`${item.videoId}-${index}`}
+                className="history-item"
+                onClick={() => onSelect(item)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => e.key === 'Enter' && onSelect(item)}
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.25, delay: index < 5 ? index * 0.04 : 0 }}
+                whileHover={{ backgroundColor: 'var(--bg-glass-hover)' }}
+              >
+                <img
+                  className={`history-item__thumb ${item.isShort ? 'history-item__thumb--shorts' : ''}`}
+                  src={item.thumbnail}
+                  alt=""
+                  loading="lazy"
+                />
+                <div className="history-item__info">
+                  <span className="history-item__title">{item.title}</span>
+                  <span className="history-item__time">
+                    {item.isShort && '⚡ Short · '}
+                    {timeAgo(item.watchedAt)}
+                  </span>
+                </div>
+              </motion.div>
+            ))}
+          </AnimatePresence>
         )}
       </div>
     </aside>

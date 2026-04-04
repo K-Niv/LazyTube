@@ -8,7 +8,7 @@ export async function fetchCategories(regionCode = 'US') {
     const err = await res.json().catch(() => ({}));
     throw new Error(err.error || 'Failed to fetch categories');
   }
-  return { data: await res.json(), quota: parseQuotaHeaders(res) };
+  return await res.json();
 }
 
 export async function searchVideos({ category, region, duration, q, maxResults = 50 }) {
@@ -24,7 +24,7 @@ export async function searchVideos({ category, region, duration, q, maxResults =
     const err = await res.json().catch(() => ({}));
     throw new Error(err.error || 'Search failed');
   }
-  return { data: await res.json(), quota: parseQuotaHeaders(res) };
+  return await res.json();
 }
 
 export async function getVideoDetails(ids) {
@@ -33,19 +33,7 @@ export async function getVideoDetails(ids) {
     const err = await res.json().catch(() => ({}));
     throw new Error(err.error || 'Failed to fetch video details');
   }
-  return { data: await res.json(), quota: parseQuotaHeaders(res) };
-}
-
-export async function fetchQuota() {
-  const res = await fetch(`${API_BASE}/quota`);
-  return res.json();
-}
-
-function parseQuotaHeaders(res) {
-  return {
-    used: parseInt(res.headers.get('X-Quota-Used') || '0', 10),
-    limit: parseInt(res.headers.get('X-Quota-Limit') || '10000', 10),
-  };
+  return await res.json();
 }
 
 /**

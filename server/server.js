@@ -12,23 +12,52 @@ const PORT = process.env.PORT || 3001;
 const API_KEY = process.env.YOUTUBE_API_KEY;
 const YT_BASE = 'https://www.googleapis.com/youtube/v3';
 
-/* ── Quota tracking (in-memory, resets daily) ── */
-let quotaUsed = 0;
-let quotaResetDate = new Date().toDateString();
+/* ── Rate Limiting (in-memory, per-IP) ──
+   15 requests/minute per IP.
+   Rationale:
+   - Each search.list call costs 100 of 10,000 daily quota → ~100 searches/day.
+   - A normal user clicks the dice maybe 5-10x in a burst, then watches.
+   - 15/min prevents automated abuse while allowing comfortable human usage.
+   - Initial page load needs 1 call (categories), each dice roll needs 1-2 calls.
+*/
+const RATE_LIMIT_WINDOW_MS = 60 * 1000;
+const RATE_LIMIT_MAX = 15;
+const ipRequestLog = new Map();
 
-function trackQuota(cost) {
-  const today = new Date().toDateString();
-  if (today !== quotaResetDate) {
-    quotaUsed = 0;
-    quotaResetDate = today;
+function rateLimiter(req, res, next) {
+  const ip = req.ip || req.connection.remoteAddress;
+  const now = Date.now();
+
+  if (!ipRequestLog.has(ip)) {
+    ipRequestLog.set(ip, []);
   }
-  quotaUsed += cost;
+
+  const timestamps = ipRequestLog.get(ip).filter((t) => now - t < RATE_LIMIT_WINDOW_MS);
+  timestamps.push(now);
+  ipRequestLog.set(ip, timestamps);
+
+  if (timestamps.length > RATE_LIMIT_MAX) {
+    return res.status(429).json({
+      error: 'Too many requests. Please wait a moment before trying again.',
+    });
+  }
+  next();
 }
 
-function attachQuotaHeaders(res) {
-  res.set('X-Quota-Used', String(quotaUsed));
-  res.set('X-Quota-Limit', '10000');
-}
+// Clean up stale entries every 5 minutes
+setInterval(() => {
+  const now = Date.now();
+  for (const [ip, timestamps] of ipRequestLog.entries()) {
+    const active = timestamps.filter((t) => now - t < RATE_LIMIT_WINDOW_MS);
+    if (active.length === 0) {
+      ipRequestLog.delete(ip);
+    } else {
+      ipRequestLog.set(ip, active);
+    }
+  }
+}, 5 * 60 * 1000);
+
+app.use('/api', rateLimiter);
 
 /* ── Helpers ── */
 async function ytFetch(endpoint, params) {
@@ -40,7 +69,11 @@ async function ytFetch(endpoint, params) {
   const res = await fetch(url.toString());
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
-    throw { status: res.status, message: err?.error?.message || res.statusText };
+    // Sanitize: never forward raw YouTube error messages (may reference the API key)
+    const safeMessage = res.status === 403
+      ? 'API quota exceeded or access denied. Please try again later.'
+      : 'Something went wrong while fetching data.';
+    throw { status: res.status, message: safeMessage };
   }
   return res.json();
 }
@@ -56,7 +89,6 @@ app.get('/api/categories', async (req, res) => {
     const region = (req.query.region || 'US').toUpperCase();
 
     if (categoryCache.has(region)) {
-      attachQuotaHeaders(res);
       return res.json(categoryCache.get(region));
     }
 
@@ -64,14 +96,12 @@ app.get('/api/categories', async (req, res) => {
       part: 'snippet',
       regionCode: region,
     });
-    trackQuota(1);
 
     const categories = (data.items || [])
       .filter((c) => c.snippet.assignable)
       .map((c) => ({ id: c.id, title: c.snippet.title }));
 
     categoryCache.set(region, categories);
-    attachQuotaHeaders(res);
     res.json(categories);
   } catch (err) {
     console.error('Categories error:', err);
@@ -108,9 +138,6 @@ app.get('/api/search', async (req, res) => {
     }
 
     const data = await ytFetch('search', params);
-    trackQuota(100);
-
-    attachQuotaHeaders(res);
     res.json(data);
   } catch (err) {
     console.error('Search error:', err);
@@ -128,24 +155,11 @@ app.get('/api/video-details', async (req, res) => {
       part: 'contentDetails,snippet',
       id: ids,
     });
-    trackQuota(1);
-
-    attachQuotaHeaders(res);
     res.json(data);
   } catch (err) {
     console.error('Video details error:', err);
     res.status(err.status || 500).json({ error: err.message || 'Failed to fetch video details' });
   }
-});
-
-// GET /api/quota
-app.get('/api/quota', (_req, res) => {
-  const today = new Date().toDateString();
-  if (today !== quotaResetDate) {
-    quotaUsed = 0;
-    quotaResetDate = today;
-  }
-  res.json({ used: quotaUsed, limit: 10000, remaining: 10000 - quotaUsed });
 });
 
 app.listen(PORT, () => {
