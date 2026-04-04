@@ -1,65 +1,64 @@
 <div align="center">
   <img src="public/favicon.svg" alt="LazyTube Logo" width="80" height="80">
   <h1>LazyTube</h1>
-  <p>A beautifully designed, proxy-secured SPA for discovering random YouTube videos and Shorts based on your mood, category, and region.</p>
+  <p>A professionally designed, highly responsive SPA for discovering random YouTube videos based on granular parameter filtering.</p>
 </div>
 
 ---
 
-## 🎲 What is LazyTube?
+## Overview
 
-Sometimes you don't know what you want to watch. **LazyTube** solves that by finding completely random, embeddable YouTube videos and Shorts tailored to your chosen preferences.
+LazyTube is a front-end React application with a Node.js/Express proxy backend designed to solve the problem of content discovery. It interfaces securely with the YouTube Data v3 API to surface completely random, embeddable YouTube videos and Shorts tailored to user-defined filters.
 
-Select a country, pick a category (like Music, Gaming, or Documentaries), choose whether you want standard Videos or Shorts, and hit **Roll the Dice!**
+The application allows users to sort by geographical region, content category, duration, and even specific search queries, wrapping complex API interactions in a sleek, user-friendly interface.
 
-## ✨ Features
+## Core Features
 
-- **🎯 Advanced Filtering**: Filter by Region (20+ countries supported), Category, Content Type (Videos vs. Shorts), and Max Duration (Short, Medium, Long).
-- **⚡ Dedicated Shorts Mode**: Uses duration-based heuristics (≤ 60 seconds) to approximate YouTube Shorts, providing a focused short-form browsing experience.
-- **🔍 Specific Text Queries**: Looking for something specific but random? Type a search query (e.g., "lo-fi beats"), and LazyTube will pick a random video matching that query.
-- **🔒 Secure API Proxy**: Uses an Express.js backend proxy to handle all communication securely.
-- **🌓 Dark / Light Themes**: Fully responsive UI with a beautifully crafted dark and light mode that respects system preferences.
-- **💾 Smart Caching**: Implements parameter-based caching to reduce redundant API requests. Frequently repeated queries are served from cache, significantly improving performance and reducing API quota usage. Includes a "Used Videos" tracker to avoid duplicates.
-- **📜 Watch History**: A sidebar that automatically tracks the last 100 videos you've discovered, allowing you to re-watch them instantly.
+- **Granular Filtering Engine**: Filter results by geographical region (20+ ISO 3166-1 alpha-2 country codes supported), YouTube Category (News, Gaming, Music, etc.), and text queries.
+- **Dedicated Shorts Mode**: Utilizes duration heuristics (≤ 60 seconds) combined with batch API checking to successfully filter for YouTube Shorts, providing a focused short-form experience.
+- **Smart TV Mode (Auto-Roll)**: Integrates the YouTube IFrame Player API to accurately detect when a video concludes, presenting an automated countdown before seamlessly queuing and autoplaying the next randomized video.
+- **Custom Local Presets**: Users can take snapshots of their current complex filter configurations and save them as named presets. These are persisted locally via the browser's `localStorage` and navigated via a custom carousel.
+- **Keyboard Navigation**: Implements an accessibility-friendly keyboard shortcut system for power users (e.g., Space to roll a new video, 'A' to toggle TV mode, 'T' to toggle themes).
+- **Secure Architecture**: All YouTube API requests are routed through a Node.js/Express proxy server, protecting the API key from public exposure and stripping sensitive error messages.
+- **Rate-Limiting Protection**: The backend utilizes an IP-based rate-limiting middleware (max 15 requests per minute per IP) to prevent API abuse and protect backend quotas.
+- **Client-Side Caching**: Uses deterministic hashing to cache API responses in `localStorage`. If a user requests a random video with the exact same parameters within a session, LazyTube serves a new, unplayed video from the cached response pool before making another expensive network request.
 
-## 🛠️ Tech Stack
+## Technical Stack
 
 ### Frontend
-- **React.js 18** (Vite)
-- Custom Vanilla CSS Design System (CSS Variables, Flexbox, Animations)
-- Client-side LocalStorage for Cache & History Management
+- **Framework**: React.js 18 (Vite build system)
+- **Styling**: Component-scoped Vanilla CSS design system with CSS Variables for theming.
+- **Animation**: Framer Motion for complex layout transitions, staggered entrances, and AnimatePresence overlay unmounting.
+- **Player API**: `react-youtube` for precise iframe state management.
+- **Storage**: Client-side `localStorage` used for cache arrays, user watch history, and custom preset objects.
 
 ### Backend
-- **Node.js** with **Express.js**
-- Proxy implementation for YouTube Data API v3 endpoints (`search.list`, `videoCategories.list`, `videos.list`)
-- In-memory Quota usage tracking
+- **Environment**: Node.js with Express.js
+- **Security**: Environment variables (`dotenv`), `express-rate-limit` for traffic control.
+- **Routing**: Specialized endpoint proxies for YouTube Data API `search.list`, `videoCategories.list`, and `videos.list`.
 
 ---
 
-## 📂 Project Structure
+## Project Structure
 
 ```text
 LazyTube/
  ├── server/
- │   └── server.js           # Express Backend API
+ │   └── server.js           # Express Backend API, rate limiters, proxy
  ├── src/
- │   ├── components/         # React UI Components
- │   ├── hooks/              # Custom Hooks
- │   ├── services/           # Cache Logic and API Fetchers
- │   ├── styles/             # Vanilla CSS Modules
- │   ├── App.jsx             # Main Orchestration
- │   └── main.jsx            # React Entry
- ├── .env                    # Environment Keys (Not committed)
+ │   ├── components/         # React UI Components and Modals
+ │   ├── hooks/              # Custom Hooks (usePresets, useHistory, useTheme, etc.)
+ │   ├── services/           # Caching Logic and API Fetchers
+ │   ├── styles/             # Modular CSS Architecture
+ │   ├── App.jsx             # Main Orchestration Layer
+ │   └── main.jsx            # React Initialization
  └── package.json            # Scripts & Dependencies
 ```
 
-## 🛡️ API Quota Management
+## API Quota Management & Optimizations
 
-The YouTube Data API enforces a daily quota system. LazyTube minimizes usage through a combination of backend optimization and intelligent request handling:
+The YouTube Data API strictly limits daily request quotas. LazyTube incorporates multiple strategies to optimize network operations and protect usage pools:
 
-- **Server-side Request Deduplication**: Identical queries are cached and reused to avoid redundant API calls.
-- **Batch Processing**: Video metadata (e.g., duration) is fetched efficiently using grouped requests.
-- **Selective Filtering**: Pre-filters results to reduce unnecessary follow-up requests.
-- **Lightweight Client Caching**: Frequently repeated queries are cached on the client for improved responsiveness.
-
-> Note: YouTube does not provide an official way to identify Shorts via API. LazyTube uses a heuristic approach based on video duration (≤ 60 seconds) to approximate Shorts detection.
+- **Server-side Defensive Programming**: Unnecessary YouTube API metadata requests are stripped. Error payloads from external endpoints are sanitized before transmission back to the client.
+- **Batch Processing**: When filtering for Shorts, initial standard queries are aggregated and their resource IDs are sent in batches to the `videos.list` endpoint to ascertain precise duration metadata at a fraction of the quota cost.
+- **Zero-Latency Repeat Fetching**: The local caching algorithm retains 50 items per search payload. Hitting "Roll the Dice" again with unchanged parameters incurs a quota cost of zero until the cached pool is exhausted.
