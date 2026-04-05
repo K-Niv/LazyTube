@@ -389,14 +389,29 @@
   line-height: 1.7;
 }
 
-/* ── Sidebar ── */
+/* ── Sidebar Backdrop ── */
+.sidebar-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(2px);
+  z-index: 200;
+}
+
+/* ── Sidebar (Overlay Panel) ── */
 .sidebar {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
   width: var(--sidebar-width);
+  max-width: 85vw;
   background: var(--bg-secondary);
   border-left: 1px solid var(--border);
   display: flex;
   flex-direction: column;
-  flex-shrink: 0;
+  z-index: 201;
+  box-shadow: -8px 0 30px rgba(0, 0, 0, 0.15);
   overflow: hidden;
   transition: background 0.5s ease;
 }
@@ -426,6 +441,26 @@
   border-radius: var(--radius-full);
 }
 
+.sidebar__close {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-tertiary);
+  font-size: var(--fs-sm);
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  transition: all var(--transition-fast);
+}
+
+.sidebar__close:hover {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
 .sidebar__list {
   flex: 1;
   overflow-y: auto;
@@ -452,6 +487,32 @@
   font-size: var(--fs-sm);
   color: var(--text-tertiary);
   line-height: 1.5;
+}
+
+/* ── History Toggle Button (Header) ── */
+.history-toggle {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-full);
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.history-toggle:hover {
+  border-color: var(--border-hover);
+  color: var(--text-primary);
+}
+
+.history-toggle--active {
+  background: var(--accent-subtle);
+  border-color: var(--accent);
+  color: var(--accent);
 }
 
 /* ── History Item ── */
@@ -977,11 +1038,19 @@
 
 /* ── Responsive ── */
 @media (max-width: 768px) {
+  /* Sidebar becomes a bottom sheet on mobile */
   .sidebar {
+    top: auto;
+    left: 0;
+    right: 0;
+    bottom: 0;
     width: 100%;
-    max-height: 200px;
+    max-width: 100%;
+    max-height: 70vh;
     border-left: none;
     border-top: 1px solid var(--border);
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.2);
   }
 
   .controls__row {
@@ -1009,4 +1078,3 @@
     display: none;
   }
 }
-

@@ -5,8 +5,9 @@ const SHORTCUTS = [
   { keys: ['Space', 'R'], action: 'Roll the Dice' },
   { keys: ['T'], action: 'Toggle theme' },
   { keys: ['A'], action: 'Toggle Auto-Roll' },
+  { keys: ['H'], action: 'Toggle history sidebar' },
   { keys: ['?'], action: 'Show / hide shortcuts' },
-  { keys: ['Esc'], action: 'Close this overlay' },
+  { keys: ['Esc'], action: 'Close overlays' },
 ];
 
 export default function ShortcutsModal({ isOpen, onClose }) {

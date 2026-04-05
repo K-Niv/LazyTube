@@ -49,9 +49,10 @@ export default function App() {
   
   const countdownTimerRef = useRef(null);
 
-  // ── Modals ──
+  // ── Modals & Panels ──
   const [showShortcuts, setShowShortcuts] = useState(false);
   const [showCreatePreset, setShowCreatePreset] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Ref to always have the latest handleRandom for auto-roll
   const handleRandomRef = useRef(null);
@@ -273,6 +274,7 @@ export default function App() {
     setCurrentVideo(item);
     setIsCurrentShort(item.isShort || false);
     addToHistory(item);
+    setSidebarOpen(false);
   }
 
   useKeyboardShortcuts({
@@ -280,10 +282,12 @@ export default function App() {
     'r': () => { if (!isLoading) handleRandomRef.current(); },
     't': toggleTheme,
     'a': () => setAutoRoll((prev) => !prev),
+    'h': () => setSidebarOpen((prev) => !prev),
     '?': () => setShowShortcuts((prev) => !prev),
     'escape': () => {
       setShowShortcuts(false);
       setShowCreatePreset(false);
+      setSidebarOpen(false);
     },
   });
 
@@ -295,6 +299,8 @@ export default function App() {
         onShowShortcuts={() => setShowShortcuts(true)}
         autoRoll={autoRoll}
         onAutoRollToggle={() => setAutoRoll((prev) => !prev)}
+        onToggleSidebar={() => setSidebarOpen((prev) => !prev)}
+        sidebarOpen={sidebarOpen}
       />
 
       <div className="app__body">
@@ -342,6 +348,8 @@ export default function App() {
           history={history}
           onSelect={handleHistorySelect}
           onClear={clearHistory}
+          isOpen={sidebarOpen}
+          onClose={() => setSidebarOpen(false)}
         />
       </div>
 

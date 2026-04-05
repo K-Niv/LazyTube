@@ -6,9 +6,8 @@ export default function Header({
   onShowShortcuts,
   autoRoll,
   onAutoRollToggle,
-  autoRollInterval,
-  onAutoRollIntervalChange,
-  autoRollOptions,
+  onToggleSidebar,
+  sidebarOpen,
 }) {
   return (
     <header className="header">
@@ -31,6 +30,18 @@ export default function Header({
             </span>
           </button>
         </div>
+
+        {/* History toggle */}
+        <button
+          className={`history-toggle ${sidebarOpen ? 'history-toggle--active' : ''}`}
+          onClick={onToggleSidebar}
+          title="Toggle history"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="10" />
+            <polyline points="12 6 12 12 16 14" />
+          </svg>
+        </button>
 
         {/* Shortcuts button */}
         <button
