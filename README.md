@@ -18,7 +18,8 @@ The application allows users to sort by geographical region, content category, d
 - **Dedicated Shorts Mode**: Utilizes duration heuristics (≤ 60 seconds) combined with batch API checking to successfully filter for YouTube Shorts, providing a focused short-form experience.
 - **Smart TV Mode (Auto-Roll)**: Integrates the YouTube IFrame Player API to accurately detect when a video concludes, presenting an automated countdown before seamlessly queuing and autoplaying the next randomized video.
 - **Custom Local Presets**: Users can take snapshots of their current complex filter configurations and save them as named presets. These are persisted locally via the browser's `localStorage` and navigated via a custom carousel.
-- **Keyboard Navigation**: Implements an accessibility-friendly keyboard shortcut system for power users (e.g., Space to roll a new video, 'A' to toggle TV mode, 'T' to toggle themes).
+- **Collapsible Watch History**: A slide-in overlay panel tracks the last 100 videos watched, accessible via a header toggle button or the `H` keyboard shortcut.
+- **Keyboard Navigation**: Full keyboard shortcut system for power users — `Space`/`R` to roll, `A` for TV mode, `H` for history, `T` for theme, `?` for shortcut reference, `Esc` to close any overlay.
 - **Secure Architecture**: All YouTube API requests are routed through a Node.js/Express proxy server, protecting the API key from public exposure and stripping sensitive error messages.
 - **Rate-Limiting Protection**: The backend utilizes an IP-based rate-limiting middleware (max 15 requests per minute per IP) to prevent API abuse and protect backend quotas.
 - **Client-Side Caching**: Uses deterministic hashing to cache API responses in `localStorage`. If a user requests a random video with the exact same parameters within a session, LazyTube serves a new, unplayed video from the cached response pool before making another expensive network request.
