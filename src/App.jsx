@@ -11,7 +11,7 @@ import { useTheme } from './hooks/useTheme';
 import { useHistory } from './hooks/useHistory';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import { usePresets } from './hooks/usePresets';
-import { fetchCategories, searchVideos, getVideoDetails, parseDuration } from './services/api';
+import { fetchCategories, searchVideos, getVideoDetails, parseDuration, searchChannels } from './services/api';
 import { getCachedResults, setCachedResults, markVideoUsed, getUnusedVideo } from './services/cache';
 
 const RANDOM_QUERIES = [
@@ -33,6 +33,7 @@ export default function App() {
   const [contentType, setContentType] = useState('video');
   const [duration, setDuration] = useState('');
   const [query, setQuery] = useState('');
+  const [selectedChannel, setSelectedChannel] = useState(null);
 
   // ── UI State ──
   const [isLoading, setIsLoading] = useState(false);
@@ -92,6 +93,7 @@ export default function App() {
       region,
       duration: contentType === 'shorts' ? 'short' : duration,
       contentType,
+      channelId: selectedChannel?.id || '',
     };
   }
 
@@ -127,6 +129,7 @@ export default function App() {
         maxResults: 50,
       };
       if (searchQ) apiPayload.q = searchQ;
+      if (params.channelId) apiPayload.channelId = params.channelId;
 
       const data = await searchVideos(apiPayload);
       const items = data.items || [];
@@ -194,7 +197,7 @@ export default function App() {
     } finally {
       setIsLoading(false);
     }
-  }, [region, selectedCategory, contentType, duration, query, addToHistory]);
+  }, [region, selectedCategory, contentType, duration, query, selectedChannel, addToHistory]);
 
   useEffect(() => { handleRandomRef.current = handleRandom; }, [handleRandom]);
 
@@ -239,6 +242,7 @@ export default function App() {
     setContentType(preset.contentType || 'video');
     setDuration(preset.duration || '');
     setQuery(preset.query || '');
+    setSelectedChannel(preset.channel || null);
     setActivePreset(preset.name);
 
     handleRandom({
@@ -247,6 +251,7 @@ export default function App() {
       region,
       duration: preset.contentType === 'shorts' ? 'short' : preset.duration || '',
       contentType: preset.contentType || 'video',
+      channelId: preset.channel?.id || '',
     });
   }
 
@@ -338,6 +343,8 @@ export default function App() {
             onDurationChange={(v) => { setDuration(v); setActivePreset(null); }}
             query={query}
             onQueryChange={(v) => { setQuery(v); setActivePreset(null); }}
+            selectedChannel={selectedChannel}
+            onChannelChange={(v) => { setSelectedChannel(v); setActivePreset(null); }}
             onRandom={() => { setActivePreset(null); handleRandom(); }}
             isLoading={isLoading}
             categoriesLoading={categoriesLoading}
@@ -377,7 +384,8 @@ export default function App() {
           contentType,
           duration,
           category: selectedCategory,
-          query
+          query,
+          channel: selectedChannel,
         }}
       />
     </div>

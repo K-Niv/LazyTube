@@ -15,6 +15,7 @@ The application allows users to sort by geographical region, content category, d
 ## Core Features
 
 - **Granular Filtering Engine**: Filter results by geographical region (20+ ISO 3166-1 alpha-2 country codes supported), YouTube Category (News, Gaming, Music, etc.), and text queries.
+- **Channel Filter**: Search for any YouTube channel by name and lock results to that specific creator. Channel IDs are resolved via a single API call on submit and cached locally.
 - **Dedicated Shorts Mode**: Utilizes duration heuristics (≤ 60 seconds) combined with batch API checking to successfully filter for YouTube Shorts, providing a focused short-form experience.
 - **Smart TV Mode (Auto-Roll)**: Integrates the YouTube IFrame Player API to accurately detect when a video concludes, presenting an automated countdown before seamlessly queuing and autoplaying the next randomized video.
 - **Custom Local Presets**: Users can take snapshots of their current complex filter configurations and save them as named presets. These are persisted locally via the browser's `localStorage` and navigated via a custom carousel.

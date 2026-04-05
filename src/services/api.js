@@ -11,18 +11,28 @@ export async function fetchCategories(regionCode = 'US') {
   return await res.json();
 }
 
-export async function searchVideos({ category, region, duration, q, maxResults = 50 }) {
+export async function searchVideos({ category, region, duration, q, channelId, maxResults = 50 }) {
   const params = new URLSearchParams();
   if (category) params.set('category', category);
   if (region) params.set('region', region);
   if (duration) params.set('duration', duration);
   if (q) params.set('q', q);
+  if (channelId) params.set('channelId', channelId);
   params.set('maxResults', String(maxResults));
 
   const res = await fetch(`${API_BASE}/search?${params.toString()}`);
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
     throw new Error(err.error || 'Search failed');
+  }
+  return await res.json();
+}
+
+export async function searchChannels(query) {
+  const res = await fetch(`${API_BASE}/channels?q=${encodeURIComponent(query)}`);
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error || 'Channel search failed');
   }
   return await res.json();
 }

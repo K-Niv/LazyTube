@@ -1,5 +1,6 @@
-import React from 'react';
-import { motion } from 'framer-motion';
+import React, { useState, useRef, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { searchChannels } from '../services/api';
 
 const REGIONS = [
   { code: 'US', name: 'United States' },
@@ -31,6 +32,9 @@ const DURATIONS = [
   { value: 'long', label: 'Long (> 20 min)' },
 ];
 
+// Local cache of channel name → results so repeat lookups are free
+const channelLookupCache = new Map();
+
 const row = {
   hidden: {},
   visible: { transition: { staggerChildren: 0.06 } },
@@ -53,10 +57,64 @@ export default function Controls({
   onDurationChange,
   query,
   onQueryChange,
+  selectedChannel,
+  onChannelChange,
   onRandom,
   isLoading,
   categoriesLoading,
 }) {
+  const [channelQuery, setChannelQuery] = useState('');
+  const [channelResults, setChannelResults] = useState([]);
+  const [channelSearching, setChannelSearching] = useState(false);
+  const [showChannelDropdown, setShowChannelDropdown] = useState(false);
+  const dropdownRef = useRef(null);
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setShowChannelDropdown(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  async function handleChannelSearch() {
+    const q = channelQuery.trim();
+    if (!q) return;
+
+    // Check local cache first
+    if (channelLookupCache.has(q.toLowerCase())) {
+      setChannelResults(channelLookupCache.get(q.toLowerCase()));
+      setShowChannelDropdown(true);
+      return;
+    }
+
+    setChannelSearching(true);
+    try {
+      const results = await searchChannels(q);
+      channelLookupCache.set(q.toLowerCase(), results);
+      setChannelResults(results);
+      setShowChannelDropdown(true);
+    } catch (err) {
+      console.error('Channel search failed:', err);
+    } finally {
+      setChannelSearching(false);
+    }
+  }
+
+  function handleSelectChannel(channel) {
+    onChannelChange(channel);
+    setChannelQuery('');
+    setShowChannelDropdown(false);
+  }
+
+  function handleClearChannel() {
+    onChannelChange(null);
+    setChannelQuery('');
+  }
+
   return (
     <motion.div
       className="controls"
@@ -79,6 +137,90 @@ export default function Controls({
               if (e.key === 'Enter' && !isLoading) onRandom();
             }}
           />
+        </div>
+      </motion.div>
+
+      {/* Channel Filter */}
+      <motion.div className="controls__row" variants={item}>
+        <div className="controls__group" ref={dropdownRef}>
+          <label className="controls__label">Channel (Optional)</label>
+          {selectedChannel ? (
+            <div className="channel-selected">
+              {selectedChannel.thumbnail && (
+                <img className="channel-selected__avatar" src={selectedChannel.thumbnail} alt="" />
+              )}
+              <span className="channel-selected__name">{selectedChannel.title}</span>
+              <button className="channel-selected__clear" onClick={handleClearChannel} aria-label="Clear channel">
+                ✕
+              </button>
+            </div>
+          ) : (
+            <div className="channel-search">
+              <input
+                type="text"
+                className="input channel-search__input"
+                placeholder="Search for a channel..."
+                value={channelQuery}
+                onChange={(e) => setChannelQuery(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    handleChannelSearch();
+                  }
+                }}
+              />
+              <button
+                className="channel-search__btn"
+                onClick={handleChannelSearch}
+                disabled={channelSearching || !channelQuery.trim()}
+                aria-label="Search channels"
+              >
+                {channelSearching ? '...' : '🔍'}
+              </button>
+            </div>
+          )}
+
+          {/* Channel Dropdown */}
+          <AnimatePresence>
+            {showChannelDropdown && channelResults.length > 0 && (
+              <motion.div
+                className="channel-dropdown"
+                initial={{ opacity: 0, y: -4 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -4 }}
+                transition={{ duration: 0.15 }}
+              >
+                {channelResults.map((ch) => (
+                  <button
+                    key={ch.id}
+                    className="channel-dropdown__item"
+                    onClick={() => handleSelectChannel(ch)}
+                  >
+                    {ch.thumbnail && (
+                      <img className="channel-dropdown__avatar" src={ch.thumbnail} alt="" />
+                    )}
+                    <div className="channel-dropdown__info">
+                      <span className="channel-dropdown__name">{ch.title}</span>
+                      {ch.description && (
+                        <span className="channel-dropdown__desc">{ch.description.slice(0, 80)}</span>
+                      )}
+                    </div>
+                  </button>
+                ))}
+              </motion.div>
+            )}
+            {showChannelDropdown && channelResults.length === 0 && !channelSearching && (
+              <motion.div
+                className="channel-dropdown"
+                initial={{ opacity: 0, y: -4 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -4 }}
+                transition={{ duration: 0.15 }}
+              >
+                <div className="channel-dropdown__empty">No channels found</div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </motion.div>
 

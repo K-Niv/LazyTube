@@ -13,6 +13,7 @@ export default function CreatePresetModal({ isOpen, onClose, onSave, currentFilt
   // Helper to format filter text nicely
   const formatFilters = () => {
     let parts = [];
+    if (currentFilters.channel) parts.push(`📺 ${currentFilters.channel.title}`);
     if (currentFilters.query) parts.push(`"${currentFilters.query}"`);
     parts.push(currentFilters.contentType === 'shorts' ? 'Shorts' : 'Videos');
     if (currentFilters.duration) parts.push(currentFilters.duration);

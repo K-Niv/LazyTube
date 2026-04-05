@@ -145,10 +145,10 @@ app.get('/api/categories', async (req, res) => {
   }
 });
 
-// GET /api/search?category=10&region=US&duration=short&maxResults=50&pageToken=...
+// GET /api/search?category=10&region=US&duration=short&maxResults=50&channelId=UC...
 app.get('/api/search', async (req, res) => {
   try {
-    const { category, region, duration, maxResults, pageToken, q } = req.query;
+    const { category, region, duration, maxResults, pageToken, q, channelId } = req.query;
 
     const params = {
       part: 'snippet',
@@ -164,6 +164,7 @@ app.get('/api/search', async (req, res) => {
     if (duration) params.videoDuration = duration;
     if (pageToken) params.pageToken = pageToken;
     if (q) params.q = q;
+    if (channelId) params.channelId = channelId;
 
     // Randomize time window for variety
     if (!pageToken) {
@@ -178,6 +179,33 @@ app.get('/api/search', async (req, res) => {
   } catch (err) {
     console.error('Search error:', err);
     res.status(err.status || 500).json({ error: err.message || 'Search failed' });
+  }
+});
+
+// GET /api/channels?q=MrBeast
+app.get('/api/channels', async (req, res) => {
+  try {
+    const q = req.query.q;
+    if (!q) return res.status(400).json({ error: 'q parameter required' });
+
+    const data = await ytFetch('search', {
+      part: 'snippet',
+      type: 'channel',
+      q,
+      maxResults: '5',
+    });
+
+    const channels = (data.items || []).map((ch) => ({
+      id: ch.snippet.channelId,
+      title: ch.snippet.channelTitle,
+      thumbnail: ch.snippet.thumbnails?.default?.url,
+      description: ch.snippet.description,
+    }));
+
+    res.json(channels);
+  } catch (err) {
+    console.error('Channel search error:', err);
+    res.status(err.status || 500).json({ error: err.message || 'Channel search failed' });
   }
 });
 

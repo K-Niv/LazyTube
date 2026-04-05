@@ -6,7 +6,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { category, region, duration, maxResults, pageToken, q } = req.query;
+    const { category, region, duration, maxResults, pageToken, q, channelId } = req.query;
 
     const params = {
       part: 'snippet',
@@ -22,6 +22,7 @@ export default async function handler(req, res) {
     if (duration) params.videoDuration = duration;
     if (pageToken) params.pageToken = pageToken;
     if (q) params.q = q;
+    if (channelId) params.channelId = channelId;
 
     // Randomize time window for variety
     if (!pageToken) {
