@@ -32,7 +32,15 @@ const DURATIONS = [
   { value: 'long', label: 'Long (> 20 min)' },
 ];
 
-// Local cache of channel name → results so repeat lookups are free
+function formatSubscribers(count) {
+  if (!count) return '';
+  const num = parseInt(count, 10);
+  if (num >= 1000000) return (num / 1000000).toFixed(1).replace(/\.0$/, '') + 'M subs';
+  if (num >= 1000) return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'K subs';
+  return num + ' subs';
+}
+
+// Local cache of channel name -> results so repeat lookups are free
 const channelLookupCache = new Map();
 
 const row = {
@@ -200,9 +208,16 @@ export default function Controls({
                       <img className="channel-dropdown__avatar" src={ch.thumbnail} alt="" />
                     )}
                     <div className="channel-dropdown__info">
-                      <span className="channel-dropdown__name">{ch.title}</span>
+                      <div className="channel-dropdown__title-row">
+                        <span className="channel-dropdown__name">{ch.title}</span>
+                        {ch.subscriberCount && (
+                          <span className="channel-dropdown__subs">
+                            {formatSubscribers(ch.subscriberCount)}
+                          </span>
+                        )}
+                      </div>
                       {ch.description && (
-                        <span className="channel-dropdown__desc">{ch.description.slice(0, 80)}</span>
+                        <span className="channel-dropdown__desc">{ch.description}</span>
                       )}
                     </div>
                   </button>

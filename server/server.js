@@ -25,7 +25,7 @@ app.use(helmet({
       scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://www.youtube.com", "https://s.ytimg.com"],
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
       fontSrc: ["'self'", "https://fonts.gstatic.com"],
-      imgSrc: ["'self'", "data:", "https://*.ytimg.com", "https://i.ytimg.com"],
+      imgSrc: ["'self'", "data:", "https://*.ytimg.com", "https://i.ytimg.com", "https://*.ggpht.com"],
       frameSrc: ["https://www.youtube.com"],
       connectSrc: ["'self'", "https://fonts.googleapis.com", "https://fonts.gstatic.com"],
     },
@@ -188,19 +188,43 @@ app.get('/api/channels', async (req, res) => {
     const q = req.query.q;
     if (!q) return res.status(400).json({ error: 'q parameter required' });
 
-    const data = await ytFetch('search', {
+    // Step 1: Search for channels
+    const searchData = await ytFetch('search', {
       part: 'snippet',
       type: 'channel',
       q,
       maxResults: '5',
     });
 
-    const channels = (data.items || []).map((ch) => ({
-      id: ch.snippet.channelId,
-      title: ch.snippet.channelTitle,
-      thumbnail: ch.snippet.thumbnails?.default?.url,
-      description: ch.snippet.description,
-    }));
+    const items = searchData.items || [];
+    if (items.length === 0) {
+      return res.json([]);
+    }
+
+    // Step 2: Fetch channel details (statistics) to get subscriber count
+    const channelIds = items.map((i) => i.snippet.channelId).join(',');
+    const detailsData = await ytFetch('channels', {
+      part: 'snippet,statistics',
+      id: channelIds,
+    });
+
+    const detailsMap = new Map();
+    (detailsData.items || []).forEach((ch) => {
+      detailsMap.set(ch.id, ch);
+    });
+
+    // Step 3: Combine data
+    const channels = items.map((ch) => {
+      const id = ch.snippet.channelId;
+      const details = detailsMap.get(id);
+      return {
+        id,
+        title: ch.snippet.channelTitle,
+        thumbnail: details?.snippet?.thumbnails?.default?.url || ch.snippet.thumbnails?.default?.url,
+        description: ch.snippet.description,
+        subscriberCount: details?.statistics?.subscriberCount || null,
+      };
+    });
 
     res.json(channels);
   } catch (err) {
